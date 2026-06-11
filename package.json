@@ -1,0 +1,22 @@
+{
+  "name": "fems",
+  "version": "1.0.0",
+  "description": "Fire Extinguisher Management System (FEMS) for TZW LTD - RESTful Microservices",
+  "private": true,
+  "scripts": {
+    "install:all": "npm --prefix services/user-service install && npm --prefix services/extinguisher-service install && npm --prefix services/inspection-service install && npm --prefix services/reporting-service install && npm --prefix services/api-gateway install",
+    "start:user": "node services/user-service/server.js",
+    "start:extinguisher": "node services/extinguisher-service/server.js",
+    "start:inspection": "node services/inspection-service/server.js",
+    "start:reporting": "node services/reporting-service/server.js",
+    "start:gateway": "node services/api-gateway/server.js",
+    "start": "node start-all.js",
+    "test": "node test/smoke-test.js"
+  },
+  "author": "Full Stack Developer - TZW LTD",
+  "license": "MIT",
+  "dependencies": {
+    "docx": "^9.7.1"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,12 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "FEMS API Gateway (single entry point)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.0",
+    "express-rate-limit": "^7.1.5"
+  }
+}

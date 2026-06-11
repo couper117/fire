@@ -1,0 +1,16 @@
+{
+  "name": "inspection-service",
+  "version": "1.0.0",
+  "description": "FEMS Inspection Scheduling Microservice",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1",
+    "mongoose": "^8.4.1",
+    "uuid": "^9.0.1"
+  }
+}

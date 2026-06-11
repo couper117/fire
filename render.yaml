@@ -1,0 +1,163 @@
+services:
+  - type: web
+    name: fems-api-gateway
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:gateway
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GATEWAY_PORT
+        value: 4000
+      - key: USER_URL
+        fromService:
+          name: fems-user-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: EXT_URL
+        fromService:
+          name: fems-extinguisher-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: INSP_URL
+        fromService:
+          name: fems-inspection-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: REPORT_URL
+        fromService:
+          name: fems-reporting-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: MONGO_URI
+        fromDatabase:
+          name: fems-mongo
+          property: connectionString
+
+  - type: web
+    name: fems-user-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:user
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: USER_PORT
+        value: 4001
+      - key: MONGO_URI
+        fromDatabase:
+          name: fems-mongo
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: fems-extinguisher-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:extinguisher
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: EXT_PORT
+        value: 4002
+      - key: MONGO_URI
+        fromDatabase:
+          name: fems-mongo
+          property: connectionString
+
+  - type: web
+    name: fems-inspection-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:inspection
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: INSP_PORT
+        value: 4003
+      - key: EXT_URL
+        fromService:
+          name: fems-extinguisher-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: EMAIL_URL
+        fromService:
+          name: fems-email-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: MONGO_URI
+        fromDatabase:
+          name: fems-mongo
+          property: connectionString
+
+  - type: web
+    name: fems-reporting-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:reporting
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REPORT_PORT
+        value: 4004
+      - key: EXT_URL
+        fromService:
+          name: fems-extinguisher-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: INSP_URL
+        fromService:
+          name: fems-inspection-service
+          property: renderInternalUrl
+          appendPath: ""
+      - key: MONGO_URI
+        fromDatabase:
+          name: fems-mongo
+          property: connectionString
+
+  - type: web
+    name: fems-email-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run install:all
+    startCommand: npm run start:email
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: EMAIL_PORT
+        value: 4005
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+  - type: web
+    name: fems-websocket-service
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node services/websocket-service/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WEBSOCKET_PORT
+        value: 4005
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+
+databases:
+  - name: fems-mongo
+    plan: free
+    ipAllowList: [] # This allows all IPs. For production, specify specific IPs

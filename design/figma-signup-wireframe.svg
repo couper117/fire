@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="640" viewBox="0 0 900 640" font-family="Arial, sans-serif">
+  <rect width="900" height="640" fill="#eef2f6"/>
+  <rect x="270" y="70" width="360" height="500" rx="14" fill="#ffffff" stroke="#d4dde6" stroke-width="1.5"/>
+  <circle cx="450" cy="130" r="22" fill="#2E5C8A"/>
+  <text x="450" y="137" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="bold">T</text>
+  <text x="450" y="185" text-anchor="middle" fill="#1f3b57" font-size="22" font-weight="bold">Create your TZW account</text>
+  <text x="450" y="210" text-anchor="middle" fill="#7a8a99" font-size="13">Fire Extinguisher Management System</text>
+  <text x="300" y="248" fill="#516170" font-size="12">First Name</text>
+  <rect x="300" y="256" width="300" height="40" rx="8" fill="#f7f9fb" stroke="#cfd9e2"/>
+  <text x="314" y="281" fill="#9aa7b3" font-size="13">e.g. Jane</text>
+  <text x="300" y="318" fill="#516170" font-size="12">Last Name</text>
+  <rect x="300" y="326" width="300" height="40" rx="8" fill="#f7f9fb" stroke="#cfd9e2"/>
+  <text x="314" y="351" fill="#9aa7b3" font-size="13">e.g. Doe</text>
+  <text x="300" y="388" fill="#516170" font-size="12">Email</text>
+  <rect x="300" y="396" width="300" height="40" rx="8" fill="#f7f9fb" stroke="#cfd9e2"/>
+  <text x="314" y="421" fill="#9aa7b3" font-size="13">jane@tzw.rw</text>
+  <text x="300" y="458" fill="#516170" font-size="12">Password</text>
+  <rect x="300" y="466" width="300" height="40" rx="8" fill="#f7f9fb" stroke="#cfd9e2"/>
+  <text x="314" y="491" fill="#9aa7b3" font-size="13">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</text>
+  <text x="566" y="490" fill="#2E5C8A" font-size="11" text-anchor="end">show</text>
+  <text x="300" y="520" fill="#7a8a99" font-size="10.5">Min 8 chars, incl. a letter and a number</text>
+  <rect x="300" y="528" width="300" height="44" rx="8" fill="#2E5C8A"/>
+  <text x="450" y="555" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="bold">Create account</text>
+  <text x="450" y="600" text-anchor="middle" fill="#516170" font-size="12">Already have an account? <tspan fill="#2E5C8A" font-weight="bold">Sign in</tspan></text>
+  <text x="450" y="30" text-anchor="middle" fill="#8a99a8" font-size="13">Figma wireframe - POST /api/auth/register</text>
+</svg>
