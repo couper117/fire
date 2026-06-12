@@ -21,12 +21,25 @@ function boot(name, app, port) {
   app.listen(port, () => console.log(`[${name}] http://localhost:${port}`));
 }
 
+async function tryBootstrap(name, app) {
+  try {
+    await app.bootstrap();
+    console.log(`[${name}] DB connected`);
+  } catch (e) {
+    console.error(`[${name}] DB bootstrap failed (service will start but DB ops will fail): ${e.message}`);
+  }
+}
+
 async function main() {
-  // Each data-owning service must init its storage/schema before serving.
-  await userApp.bootstrap();
-  await extApp.bootstrap();
-  await inspApp.bootstrap();
-  await reportApp.bootstrap();
+  if (!process.env.MONGO_URI || process.env.MONGO_URI.includes('cluster0.mongodb.net') && !process.env.MONGO_URI.match(/cluster0\.[a-z0-9]+\.mongodb\.net/)) {
+    console.warn('\n⚠️  MONGO_URI is not set or still uses the placeholder.');
+    console.warn('   Set MONGO_URI in your Render environment variables to a real Atlas connection string.\n');
+  }
+
+  await tryBootstrap('user-service', userApp);
+  await tryBootstrap('extinguisher-service', extApp);
+  await tryBootstrap('inspection-service', inspApp);
+  await tryBootstrap('reporting-service', reportApp);
 
   boot('user-service', userApp, process.env.USER_PORT);
   boot('extinguisher-service', extApp, process.env.EXT_PORT);
@@ -36,8 +49,7 @@ async function main() {
 
   console.log('\nFEMS is up.');
   console.log('  Gateway:        http://localhost:' + process.env.GATEWAY_PORT);
-  console.log('  Default admin:  admin@tzw.rw / Admin@123');
-  console.log('  Swagger docs:   /users/api/docs, /extinguishers/api/docs, /inspections/api/docs, /reports/api/docs\n');
+  console.log('  Default admin:  admin@tzw.rw / Admin@123\n');
 }
 
-main().catch((e) => { console.error('Failed to start FEMS:', e); process.exit(1); });
+main().catch((e) => { console.error('Fatal startup error:', e.message); process.exit(1); });
