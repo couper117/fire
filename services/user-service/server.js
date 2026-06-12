@@ -26,7 +26,15 @@ const ROLES = ['Admin', 'Inspector', 'User'];
 
 let User; // assigned during bootstrap
 
-app.get('/health', (req, res) => res.json({ service: 'user-service', status: 'ok' }));
+app.get('/health', (req, res) => res.json({ service: 'user-service', status: 'ok', db: User ? 'connected' : 'disconnected' }));
+
+// Guard middleware — returns 503 if DB never connected
+function requireDb(req, res, next) {
+  if (!User) return res.status(503).json({ error: 'Service Unavailable', message: 'Database not connected. Check MONGO_URI environment variable on Render.' });
+  next();
+}
+app.use('/api/auth', requireDb);
+app.use('/api/users', requireDb);
 
 app.get('/', (req, res) => {
   res.json({
