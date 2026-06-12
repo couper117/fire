@@ -1,15 +1,4 @@
 'use strict';
-/**
- * API GATEWAY
- * -----------
- * Single public entry point for the FEMS microservices. Routes:
- *   /users/*         -> user-service        (4001)
- *   /extinguishers/* -> extinguisher-service (4002)
- *   /inspections/*   -> inspection-service   (4003)
- *   /reports/*       -> reporting-service    (4004)
- * This is the typical microservice edge pattern: clients talk to ONE host,
- * the gateway forwards to the right internal service.
- */
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const rateLimit = require('express-rate-limit');
@@ -17,88 +6,61 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.GATEWAY_PORT || 4000;
 
-// CORS — allow the Vercel frontend and any localhost dev origin
 const ALLOWED_ORIGINS = [
   /\.vercel\.app$/,
   /^http:\/\/localhost:\d+$/,
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin || '';
-  const allowed = ALLOWED_ORIGINS.some((rule) =>
+function isAllowed(origin) {
+  return ALLOWED_ORIGINS.some((rule) =>
     rule instanceof RegExp ? rule.test(origin) : rule === origin
   );
-  if (allowed) {
+}
+
+// Handle CORS preflight before anything else
+app.options('*', (req, res) => {
+  const origin = req.headers.origin || '';
+  if (isAllowed(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   }
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
+  res.sendStatus(204);
 });
 
-// Rate limiting middleware
+// Rate limiting
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
-  message: 'Too many requests from this IP, please try again later.',
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === '/health', // Skip health checks
+  skip: (req) => req.path === '/health',
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 login attempts per window
-  message: 'Too many login attempts, please try again later.',
-  skipSuccessfulRequests: true, // Don't count successful login attempts
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-const TARGETS = {
-  users: process.env.USER_URL || 'http://localhost:4001',
-  extinguishers: process.env.EXT_URL || 'http://localhost:4002',
-  inspections: process.env.INSP_URL || 'http://localhost:4003',
-  reports: process.env.REPORT_URL || 'http://localhost:4004',
-};
-
-// Apply general rate limiting
 app.use(generalLimiter);
-
-// Apply stricter rate limiting to auth endpoints
 app.use('/users/api/auth/login', authLimiter);
 app.use('/users/api/auth/register', authLimiter);
 
-app.get('/health', (req, res) => res.json({ service: 'api-gateway', status: 'ok', routes: Object.keys(TARGETS), rateLimit: 'enabled' }));
+app.get('/health', (req, res) => res.json({ service: 'api-gateway', status: 'ok', routes: ['users','extinguishers','inspections','reports'], rateLimit: 'enabled' }));
 
-app.get('/', (req, res) => {
-  res.json({
-    name: 'FEMS API Gateway',
-    description: 'Central entry point for FEMS microservices',
-    endpoints: {
-      auth: {
-        register: 'POST /users/api/auth/register',
-        login: 'POST /users/api/auth/login',
-      },
-      documentation: {
-        users: '/users/api/docs/',
-        extinguishers: '/extinguishers/api/docs/',
-        inspections: '/inspections/api/docs/',
-        reports: '/reports/api/docs/',
-      },
-      health: {
-        gateway: '/health',
-        users: '/users/health',
-        extinguishers: '/extinguishers/health',
-        inspections: '/inspections/health',
-        reports: '/reports/health',
-      }
-    },
-  });
-});
+app.get('/', (req, res) => res.json({ name: 'FEMS API Gateway', status: 'ok' }));
+
+const TARGETS = {
+  users:         process.env.USER_URL    || 'http://localhost:4001',
+  extinguishers: process.env.EXT_URL     || 'http://localhost:4002',
+  inspections:   process.env.INSP_URL    || 'http://localhost:4003',
+  reports:       process.env.REPORT_URL  || 'http://localhost:4004',
+};
 
 for (const [prefix, target] of Object.entries(TARGETS)) {
   app.use(
@@ -108,8 +70,14 @@ for (const [prefix, target] of Object.entries(TARGETS)) {
       changeOrigin: true,
       pathRewrite: { [`^/${prefix}`]: '' },
       on: {
-        proxyRes: (proxyRes) => {
-          // Fix redirects (e.g. from /api/docs to /api/docs/) by re-adding the service prefix
+        proxyRes: (proxyRes, req) => {
+          // Inject CORS headers into every proxied response
+          const origin = req.headers.origin || '';
+          if (isAllowed(origin)) {
+            proxyRes.headers['access-control-allow-origin'] = origin;
+            proxyRes.headers['access-control-allow-credentials'] = 'true';
+          }
+          // Fix proxy redirects
           if (proxyRes.headers.location && proxyRes.headers.location.startsWith('/')) {
             proxyRes.headers.location = `/${prefix}${proxyRes.headers.location}`;
           }
@@ -121,8 +89,8 @@ for (const [prefix, target] of Object.entries(TARGETS)) {
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`[api-gateway] listening on http://localhost:${PORT}`);
-    for (const [p, t] of Object.entries(TARGETS)) console.log(`   /${p} -> ${t}`);
+    console.log(`[api-gateway] http://localhost:${PORT}`);
+    for (const [p, t] of Object.entries(TARGETS)) console.log(`  /${p} -> ${t}`);
   });
 }
 module.exports = app;
