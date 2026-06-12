@@ -1,4 +1,4 @@
-const API_BASE: string = (import.meta.env.VITE_API_URL as string) || '';
+const API_BASE: string = ((import.meta.env.VITE_API_URL as string) || '').replace(/\/$/, '');
 
 async function parseResponse(response: Response): Promise<any> {
   const contentType = response.headers.get('content-type') || '';

@@ -17,6 +17,28 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.GATEWAY_PORT || 4000;
 
+// CORS — allow the Vercel frontend and any localhost dev origin
+const ALLOWED_ORIGINS = [
+  /\.vercel\.app$/,
+  /^http:\/\/localhost:\d+$/,
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '';
+  const allowed = ALLOWED_ORIGINS.some((rule) =>
+    rule instanceof RegExp ? rule.test(origin) : rule === origin
+  );
+  if (allowed) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 // Rate limiting middleware
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
