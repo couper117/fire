@@ -37,11 +37,8 @@ async function main() {
   }
 
   await tryBootstrap('user-service', userApp);
-  await new Promise(r => setTimeout(r, 1500));
   await tryBootstrap('extinguisher-service', extApp);
-  await new Promise(r => setTimeout(r, 1500));
   await tryBootstrap('inspection-service', inspApp);
-  await new Promise(r => setTimeout(r, 1500));
   await tryBootstrap('reporting-service', reportApp);
 
   boot('user-service', userApp, process.env.USER_PORT);
