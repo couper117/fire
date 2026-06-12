@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Input, LoadingSpinner } from '../components/shared';
+import { Button, Input } from '../components/shared';
 import { api } from '../api';
 import toast from 'react-hot-toast';
 import { Check } from 'lucide-react';

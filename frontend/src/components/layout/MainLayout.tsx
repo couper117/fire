@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 

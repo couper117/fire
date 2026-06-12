@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Download } from 'lucide-react';
+import { Plus, Download, Pencil, Trash2 } from 'lucide-react';
 import { api } from '../../api';
 import { Button, DataTable, Modal, LoadingSpinner } from '../shared';
 import { UserForm } from './UserForm';
@@ -124,7 +124,7 @@ export const UserManagement = () => {
     {
       key: 'firstName' as const,
       label: 'First Name',
-      render: (value: any, row: User) => `${row.firstName} ${row.lastName}`,
+      render: (_value: any, row: User) => `${row.firstName} ${row.lastName}`,
     },
     {
       key: 'role' as const,
@@ -148,6 +148,28 @@ export const UserManagement = () => {
       key: 'createdAt' as const,
       label: 'Created',
       render: (value: string) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: 'id' as const,
+      label: 'Actions',
+      render: (_value: any, row: User) => (
+        <div className="flex gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleEditUser(row); }}
+            className="p-1 text-blue-600 hover:text-blue-800"
+            title="Edit"
+          >
+            <Pencil size={15} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleDeleteUser(row); }}
+            className="p-1 text-red-600 hover:text-red-800"
+            title="Delete"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
     },
   ];
 

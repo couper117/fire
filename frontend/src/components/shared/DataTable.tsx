@@ -60,7 +60,7 @@ export function DataTable<T extends { id?: string | number }>({
     }
   };
 
-  const handleSelectRow = (rowId: string | number, row: T) => {
+  const handleSelectRow = (rowId: string | number, _row: T) => {
     const newSelected = new Set(selectedRows);
     if (newSelected.has(rowId)) {
       newSelected.delete(rowId);
