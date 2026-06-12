@@ -34,6 +34,8 @@ services:
         fromDatabase:
           name: fems-mongo
           property: connectionString
+      - key: FRONTEND_URL
+        value: https://fire-tawny-mu.vercel.app
 
   - type: web
     name: fems-user-service
